@@ -1,7 +1,9 @@
 package urlshortener
 
 import (
+	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -39,18 +41,7 @@ func handleNewUrl(w http.ResponseWriter, r *http.Request) {
 	//return slug
 
 	w.WriteHeader(http.StatusOK)
-}
-
-func persistSlug(slug string, url string) {
-	//create new record in dynamo db
-}
-
-func generateSlug() string {
-	return ""
-}
-
-func slugAlreadyExists(slug string) bool {
-	return true
+	fmt.Println(w, "%s %s", r.URL, slug)
 }
 
 func handleGetUrl(w http.ResponseWriter, r *http.Request) {
@@ -60,4 +51,32 @@ func handleGetUrl(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+}
+
+func persistSlug(slug string, url string) {
+	//create new record in dynamo db
+}
+
+func generateSlug() string {
+	slugLength := 5
+	return randomString(slugLength)
+}
+
+func randomString(n int) string {
+	const letterBytes = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	b := make([]byte, n)
+	for i := range b {
+		b[i] = letterBytes[rand.Intn(len(letterBytes))]
+	}
+	return string(b)
+}
+
+func slugAlreadyExists(slug string) bool {
+	//check if slug exists in dynamo db
+	return false
+}
+
+func getUrlBySlug(slug string) string {
+	//get url from dynamo db
+	return ""
 }
