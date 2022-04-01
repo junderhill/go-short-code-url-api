@@ -1,12 +1,17 @@
 package urlshortener
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"math/rand"
 	"net/http"
 
 	"github.com/gorilla/mux"
+
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go/aws"
 )
 
 func main() {
@@ -78,5 +83,22 @@ func slugAlreadyExists(slug string) bool {
 
 func getUrlBySlug(slug string) string {
 	//get url from dynamo db
+
+	client := getDynamoClient()
+
+	out, err := client.GetItem(context.Background(), &dynamodb.GetItemInput{
+		TableName: aws.String("url-shortener"),
+		Key:       map[string]dynamodb.AttributeValue{"slug": {S: aws.String(slug)}}})
+
 	return ""
+}
+
+func getDynamoClient() *dynamodb.Client {
+	cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion("us-east-1"))
+	if err != nil {
+		panic(err)
+	}
+
+	svc := dynamodb.NewFromConfig(cfg)
+	return svc
 }
